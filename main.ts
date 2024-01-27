@@ -1,3 +1,9 @@
+import { TeamCommentsPlugin } from "./src/obsidianPlugin"
+
+export default TeamCommentsPlugin
+
+
+/*
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
@@ -132,3 +138,4 @@ class SampleSettingTab extends PluginSettingTab {
 				}));
 	}
 }
+*/
