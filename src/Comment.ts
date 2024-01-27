@@ -1,6 +1,6 @@
 export interface Comment {
     // file_path: string
-    text_id: number
+    text_id: number;
     publisher: string;
     time: string;
     content: string;

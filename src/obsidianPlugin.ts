@@ -51,10 +51,6 @@ export class TeamCommentsPlugin extends Plugin {
 			const selectedText = activeView.editor.getSelection();
 		
 			if (selectedText) {
-				// if (this.app.workspace.getLeavesOfType(VIEW_TYPE).length != 0)
-				// {
-				// 	this.app.workspace.getLeavesOfType(VIEW_TYPE)[0].detach();
-				// }
 				this.app.workspace.detachLeavesOfType(VIEW_TYPE);
 				
 				await this.app.workspace.getRightLeaf(false).setViewState({

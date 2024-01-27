@@ -25,31 +25,47 @@
   import { darkTheme, NFlex, NButton, NConfigProvider, NInput, NList, NListItem, NThing, NTag, NSpace, NMention, MentionOption } from 'naive-ui';
   import { Comment } from './Comment';
   import { TeamCommentsPlugin } from "./obsidianPlugin";
+  import emitter from './emitter'
 
+  interface Props{
+    comments: Comment[];
+  }
+  
+
+  const options = ref<MentionOption[]>([]);
+  let componentSelf = getCurrentInstance();
+  if (!componentSelf) throw Error("vue not found");
+  let plugin = componentSelf.appContext.config.globalProperties.plugin as TeamCommentsPlugin
+  options.value = plugin.settings.mentions;
+
+  let global = componentSelf.appContext.config.globalProperties;
   
   const newComment = ref<string>('');
-  const comments = ref<Comment[]>([]);
+  const comments = ref<Comment[]>(global.comments);
   const mentionsInput = ref('@');
-  const options = ref<MentionOption[]>([]);
   const theme = ref(document.body.classList.contains('theme-dark') ? darkTheme : undefined);
 
-let componentSelf = getCurrentInstance();
-if (!componentSelf) throw Error("vue not found");
-let plugin = componentSelf.appContext.config.globalProperties.plugin as TeamCommentsPlugin
-options.value = plugin.settings.mentions;
-  
+  // const emit = defineEmits(['submit-comment'])
+
+  // comments = defineProps(['comments']);
   function submitComment (){
     if (newComment.value.trim() !== '') {
         const timestamp = new Date().toLocaleString();
         const userMentions = mentionsInput.value.replace(/\s/g, "").split('@').filter(i => i && i.trim());
-        const comment = {
+        const comment = <Comment>{
             //file_path: "./",
-            text_id: 1, // Replace with actual text id
+            text_id: global.textNumber, // Replace with actual text id
             publisher: plugin.settings.name,
             time: timestamp,
             content: newComment.value,
             mentions: userMentions
         };
+        //plugin.$
+        //emit('submit-comment', {comment})
+        //if (!componentSelf) throw Error("vue not found");
+        //componentSelf.$EventBus.emit('newTask', comment);
+        //this.$bus.$emit('click', comment);
+        emitter.emit("submit-comment", comment);
         userMentions.forEach(userMention => {
             if (!options.value.some(opt => opt.value === userMention)) {
                 options.value.push({
@@ -58,6 +74,7 @@ options.value = plugin.settings.mentions;
                 });
             }
         });
+        console.log(comment);
         plugin.settings.mentions = options.value;
         plugin.saveSettings();
         comments.value.unshift(comment);
@@ -66,3 +83,4 @@ options.value = plugin.settings.mentions;
     }
   };
 </script>
+./bus./mitt
