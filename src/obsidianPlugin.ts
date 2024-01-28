@@ -38,12 +38,13 @@ export class TeamCommentsPlugin extends Plugin {
 		this.addCommand({
 			id: "open-comments-panel",
 			name: "Open Comments Panel",
-			callback: () => {
+			editorCallback: (editor: Editor) => {
 				this.activateView();
 			}
 		});
 	}
 
+	// https://docs.obsidian.md/Plugins/User+interface/Commands#Editor+commands
 	async activateView() {
 		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 		

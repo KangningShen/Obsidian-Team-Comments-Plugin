@@ -8,7 +8,7 @@
         <NButton @click="submitComment">Submit</NButton>
       </NSpace>
       <NList hoverable clickable>
-        <NListItem v-for="comment in comments" :key="comment.text_id + '-' + comment.content">
+        <NListItem v-for="comment in global.comments" :key="comment.text_id + '-' + comment.content">
           <NThing v-bind:title="comment.publisher" v-bind:title-extra="comment.time" style="margin-top: 1px;" content-style="margin-top: 1px;">
             <NTag v-for="mention in comment.mentions" :bordered="false" type="info" size="small" style="margin: 3px">
               @{{ mention }}
@@ -83,4 +83,3 @@
     }
   };
 </script>
-./bus./mitt
