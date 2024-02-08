@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, MarkdownView, Editor, EditorPosition, TFile, Notice, } from 'obsidian';
-import { createApp, App } from 'vue';
+import { createApp, App, toRaw } from 'vue';
 import TeamCommentsTemplate from './TeamCommentsTemplate.vue';
 import { TeamCommentsPlugin } from "./obsidianPlugin";
 import { Comment } from './Comment';
@@ -164,12 +164,46 @@ export class TeamCommentsView extends ItemView {
             // console.log(editor.getCursor("from"));
             // console.log(editor.getCursor("to"));
         });
+
+
+        
+        emitter.on("delete-comment", (data) => {
+            // console.log("emitter!!!");
+
+            const editor = this.vueApp.config.globalProperties.editor;
+            const regex = /# Comments\s*\`\`\`json\n([\s\S]*?)\`\`\`/;
+            let match = regex.exec(editor.getValue());
+            
+            if (!match || !match[1]) {
+                return;
+            }
+
+            if (match && match[1])
+            {
+                let allComments = JSON.parse(match[1]);
+                if (!allComments.hasOwnProperty(this.vueApp.config.globalProperties.textNumber.toString()))
+                    return ;
+                
+                allComments[this.vueApp.config.globalProperties.textNumber.toString()].splice(data, 1);
+
+                if (allComments[this.vueApp.config.globalProperties.textNumber.toString()].length == 0)
+                {
+                    console.log("empty");
+                    //delete allComments[this.vueApp.config.globalProperties.textNumber.toString()];
+
+                }
+
+                editor.replaceRange(JSON.stringify(allComments) + '\n', { line: editor.lastLine() - 2, ch: 0 }, { line: editor.lastLine() - 1, ch: 0 } );
+
+            }
+        });
     }
 
 
     // 在视图需要被关闭时调用，它负责释放视图占用的资源
     async onClose() {
         emitter.off("submit-comment");
+        emitter.off("delete-comment");
         this.onunload();
     }
     onunload(): void {
