@@ -18,6 +18,8 @@ export class TeamCommentsPlugin extends Plugin {
 		this.addSettingTab(new TeamCommentsSettingTab(this.app, this));
 
 		this.registerCommands();
+		//this.registerEvent();
+		this.registerListener();
     }
     
 	async onunload() {
@@ -44,15 +46,39 @@ export class TeamCommentsPlugin extends Plugin {
 		});
 	}
 
+	registerListener() {
+		this.registerEvent(this.app.workspace.on('file-open', async (file: TFile) => {
+			const existingLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE);
+			if (existingLeaves.length > 0)
+			{
+				const existingView = existingLeaves[0].view as TeamCommentsView;
+				existingView.onClose();
+				this.app.workspace.detachLeavesOfType(VIEW_TYPE);
+				return;
+			}
+		}));
+	}
+
 	// https://docs.obsidian.md/Plugins/User+interface/Commands#Editor+commands
 	async activateView() {
+
+		const existingLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE);
+		if (existingLeaves.length > 0)
+		{
+			const existingView = existingLeaves[0].view as TeamCommentsView;
+			//await existingView.refresh();
+			existingView.onClose();
+			existingView.onOpen();
+			this.app.workspace.setActiveLeaf(existingLeaves[0]);
+			return;
+		}
+
 		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 		
 		if (activeView) {
 			const selectedText = activeView.editor.getSelection();
 		
 			if (selectedText) {
-				this.app.workspace.detachLeavesOfType(VIEW_TYPE);
 				
 				await this.app.workspace.getRightLeaf(false).setViewState({
 					type: VIEW_TYPE,

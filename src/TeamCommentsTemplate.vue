@@ -8,7 +8,7 @@
         <NButton @click="submitComment">Submit</NButton>
       </NSpace>
       <NList hoverable clickable>
-        <NListItem v-for="comment in global.comments" :key="comment.text_id + '-' + comment.content">
+        <NListItem v-for="comment in comments" :key="comment.text_id + '-' + comment.content">
           <NThing v-bind:title="comment.publisher" v-bind:title-extra="comment.time" style="margin-top: 1px;" content-style="margin-top: 1px;">
             <NTag v-for="mention in comment.mentions" :bordered="false" type="info" size="small" style="margin: 3px">
               @{{ mention }}
@@ -60,11 +60,6 @@
             content: newComment.value,
             mentions: userMentions
         };
-        //plugin.$
-        //emit('submit-comment', {comment})
-        //if (!componentSelf) throw Error("vue not found");
-        //componentSelf.$EventBus.emit('newTask', comment);
-        //this.$bus.$emit('click', comment);
         emitter.emit("submit-comment", comment);
         userMentions.forEach(userMention => {
             if (!options.value.some(opt => opt.value === userMention)) {
@@ -74,10 +69,15 @@
                 });
             }
         });
+        //console.log(plugin.activeFile?.filePath);
         console.log(comment);
         plugin.settings.mentions = options.value;
         plugin.saveSettings();
+        // console.log(comments);
+        // console.log(global.comments);
         comments.value.unshift(comment);
+        // console.log(comments);
+        // console.log(global.comments);
         newComment.value = ''; // Clear the input field
         mentionsInput.value = '@'; // Clear the mention field
     }

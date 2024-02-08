@@ -1,15 +1,16 @@
-import { ItemView, WorkspaceLeaf, MarkdownView, Editor, EditorPosition, TFile, } from 'obsidian';
+import { ItemView, WorkspaceLeaf, MarkdownView, Editor, EditorPosition, TFile, Notice, } from 'obsidian';
 import { createApp, App } from 'vue';
 import TeamCommentsTemplate from './TeamCommentsTemplate.vue';
 import { TeamCommentsPlugin } from "./obsidianPlugin";
 import { Comment } from './Comment';
 import emitter from './emitter'
 
-export const VIEW_TYPE: string = 'team-comments';
+export const VIEW_TYPE: string = "team-comments";
 
 export class TeamCommentsView extends ItemView {
     vueApp: App;
     plugin: TeamCommentsPlugin;
+    //filePath: string | null = null;
     constructor(leaf: WorkspaceLeaf, plugin: TeamCommentsPlugin) {
         super(leaf);
         this.plugin = plugin;
@@ -29,10 +30,10 @@ export class TeamCommentsView extends ItemView {
         return "lines-of-text";
     }
 
-    // if the text has already be selected, begin with '<span class='team-comments', id=x>' and end with '</span>', then extract id as textNum
+    // if the text has already be selected, begin with '<mark class="team-comments", id=x>' and end with '</mark>', then extract id as textNum
     parseTextNumber(text: string): number {
         let textNum = 0;
-        const regex = /<span class='team-comments' id=(\d+)>[\s\S]*?<\/span>/;
+        const regex = /<mark class="team-comments" id=(\d+)>[\s\S]*?<\/mark>/;
         const match = regex.exec(text);
         if (match && match[1]) {
             textNum = parseInt(match[1], 10);
@@ -47,32 +48,18 @@ export class TeamCommentsView extends ItemView {
         if (textNum == 0)
             return comments;
         else {
-            // get 
-            // get ## Text textNum
-            // load all the comments stored under this section (before EOF or ## Text textNum+1)
-            // string to json, saved in comments
-            const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-            //const currentFile: TFile | null = editor.file;
+            // const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 
-            if (view) {
-                const content = view.editor.getValue();
-                //const content = await this.app.vault.read(currentFile);
-                const regex = /# Comments\s*\`\`\`json\n([\s\S]*?)\`\`\`/;
-                //const regex = new RegExp(`# Text ${textNum}[\\s\\S]*?(?=## Text ${textNum + 1}|$)`);
-                const match = regex.exec(content);
+            const content = this.vueApp.config.globalProperties.editor.getValue();
+            const regex = /# Comments\s*\`\`\`json\n([\s\S]*?)\`\`\`/;
+            const match = regex.exec(content);
 
-                if (match && match[1]) {
-                    //console.log(match[1]);
-                    const parsedComments = JSON.parse(match[1])[textNum.toString()];
-                    console.log(parsedComments);
-                    if (parsedComments !== undefined)
-                        return parsedComments;
-                    // console.log(parsedComments);
-                    // if (parsedComments.hasOwnProperty(textNum.toString()))
-                    //     comments = parsedComments[textNum.toString()]);
-                    // console.log('comments:');
-                    // console.log(comments);
-                }
+            if (match && match[1]) {
+                //console.log(match[1]);
+                const parsedComments = JSON.parse(match[1])[textNum.toString()];
+                console.log(parsedComments);
+                if (parsedComments !== undefined)
+                    return parsedComments;
             }
         }
         return comments;
@@ -92,85 +79,101 @@ export class TeamCommentsView extends ItemView {
 
             if (selectedText)
             {
-                const textNumber = this.parseTextNumber(selectedText);
-                const comments = this.getComments(textNumber);
                 // const comments = <Comment[]>([{text_id: 2, publisher: '李四', time: '2024/1/28 01:33:01', content: '1', mentions: Array(0)}]);
                 // https://github.com/renmu123/obsidian-api-faq?tab=readme-ov-file#%E8%8E%B7%E5%8F%96%E9%80%89%E4%B8%AD%E7%9A%84%E6%96%87%E5%AD%97
                 this.vueApp = createApp(TeamCommentsTemplate);
                 this.vueApp.config.globalProperties.plugin = this.plugin;
-                this.vueApp.config.globalProperties.textNumber = textNumber;
-                this.vueApp.config.globalProperties.comments = comments;
                 this.vueApp.config.globalProperties.editor = activeView.editor;
-                this.vueApp.config.globalProperties.cursor_be = activeView.editor.getCursor('from');
-                this.vueApp.config.globalProperties.cursor_ed = activeView.editor.getCursor('to');
+                this.vueApp.config.globalProperties.cursorStart = activeView.editor.getCursor("from");
+                this.vueApp.config.globalProperties.cursorEnd = activeView.editor.getCursor("to");
+                this.vueApp.config.globalProperties.filePath = this.app.workspace.getActiveFile()?.path ?? "";
+                console.log("filepath: " + this.vueApp.config.globalProperties.filePath);
                 this.vueApp.config.globalProperties.container = mountPoint;
+
+                this.vueApp.config.globalProperties.textNumber = this.parseTextNumber(selectedText);
+                this.vueApp.config.globalProperties.comments = this.getComments(this.vueApp.config.globalProperties.textNumber);
                 this.vueApp.mount(mountPoint);
+
+                console.log(this.vueApp.config.globalProperties.cursorStart);
+                console.log(this.vueApp.config.globalProperties.cursorEnd);
+                // console.log(activeView.editor.getCursor("head"));
+                // console.log(activeView.editor.getCursor("anchor"));
 
             }
         }
 
         emitter.on("submit-comment", async (data) => {
-            console.log("emitter!!!");
-            const editor = this.vueApp.config.globalProperties.editor;
-            //const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-            //const editor = this.getEditor()
-            //console.log(view);
-            //if (view) {
-            const content = editor.getValue();
-            const regex = /# Comments\s*\`\`\`json\n([\s\S]*?)\`\`\`/;
-            let match = regex.exec(content);
-            console.log(match);
-            if (!match || !match[1]) {
-                console.log("no");
-                //editor.replaceSelection("# Comments\n\`\`\`json\n\`\`\`\n");
-                editor.setCursor({ line: 9999, ch: 0 });
-                editor.replaceRange("\n\n# Comments\n\`\`\`json\n\n\`\`\`\n", editor.getCursor());
-                //editor.setCursor(this.vueApp.config.globalProperties.cursor_be, this.vueApp.config.globalProperties.cursor_ed);
-                //editor.replaceRange("\n\n# Comments\n\`\`\`json\n\n\`\`\`\n", editor.getCursor('from'), editor.getCursor('to'));
-            }
-            
-            // if (this.vueApp.config.globalProperties.textNumber == 0)
-            // {
-            //     this.vueApp.config.globalProperties.textNumber = 
-            // }
+            // console.log("emitter!!!");
 
-            match = regex.exec(content);
+            const editor = this.vueApp.config.globalProperties.editor;
+            //const content = editor.getValue();
+            const regex = /# Comments\s*\`\`\`json\n([\s\S]*?)\`\`\`/;
+            let match = regex.exec(editor.getValue());
+            //console.log(match);
+            if (!match || !match[1]) {
+                editor.replaceRange("\n\n# Comments\n\`\`\`json\n"+JSON.stringify({})+"\n\`\`\`\n", { line: 9999, ch: 0 });
+            }
+
+            match = regex.exec(editor.getValue());
+            // console.log(match);
 
             if (match && match[1])
             {
                 let allComments = JSON.parse(match[1]);
-                allComments[this.vueApp.config.globalProperties.textNumber.toString()].unshift(data);
-                //editor.setCursor({ line: 9999, ch: 0 });
-                //editor.setSelection(match[1]);
-                editor.replaceSelection(JSON.stringify(allComments));
-                //editor.replaceRange(JSON.stringify(allComments), editor.getCursor());
-            }
+                //console.log(allComments);
 
-            //}
-            if (data.text_id == 0)
-            {
-                if (true /* unfinished: can't find # Comment */)
+                if (this.vueApp.config.globalProperties.textNumber == 0)
                 {
-                    // add # Comment at the end of the markdown document
-                    // add Total text number: 0 at the end of the markdown document
-                }
-                // get Total text number: x, modify it to Total text number: x+1
-                // the text_id of data is x+1
-                // modify the selected text to assign html class 'team-comments' and id x+1
-                // add ## Text x+1 at the end of the markdown document
-            }
-            // get the position of ## Text data.text_id
-            // save comment as json below ## Text data.text_id
-        });
 
-        // const commentsData: Comment[] = [];
+                    const max_text_id = Math.max.apply(null,Object.keys(allComments));
+                    // console.log(max_text_id);
+                    if (max_text_id == -Infinity)
+                        this.vueApp.config.globalProperties.textNumber = 1;
+                    else
+                        this.vueApp.config.globalProperties.textNumber = max_text_id + 1;
+                    data.text_id = this.vueApp.config.globalProperties.textNumber;
+                    allComments[this.vueApp.config.globalProperties.textNumber.toString()] = <Comment[]>[];
+                    
+                    // let content = editor.getRange(this.vueApp.config.globalProperties.cursorStart, this.vueApp.config.globalProperties.cursorEnd);
+                    // console.log(content);
+                    // content = content.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                    // console.log(content);
+                    // editor.replaceRange(`<mark class="team-comments" id=${this.vueApp.config.globalProperties.textNumber}>` + content + "</mark>", this.vueApp.config.globalProperties.cursorStart, this.vueApp.config.globalProperties.cursorEnd);
+                    
+                    // console.log(this.vueApp.config.globalProperties.cursorEnd);
+                    editor.replaceRange("</mark>", this.vueApp.config.globalProperties.cursorEnd);
+                    // console.log(this.vueApp.config.globalProperties.cursorEnd);
+                    // if (this.vueApp.config.globalProperties.cursorStart.line != this.vueApp.config.globalProperties.cursorEnd.line)
+                    //     this.vueApp.config.globalProperties.cursorEnd.ch += 7;
+                    // else
+                    //     this.vueApp.config.globalProperties.cursorEnd.ch += 7;
+                    // console.log(this.vueApp.config.globalProperties.cursorEnd);
+                    editor.replaceRange(`<mark class="team-comments" id=${this.vueApp.config.globalProperties.textNumber}>`, this.vueApp.config.globalProperties.cursorStart);
+                }
+                //console.log(allComments);
+                // if (!allComments.hasOwnProperty(this.vueApp.config.globalProperties.textNumber.toString()))
+                //     allComments[this.vueApp.config.globalProperties.textNumber.toString()] = <Comment[]>[];
+                allComments[this.vueApp.config.globalProperties.textNumber.toString()].unshift(data);
+                //console.log(allComments);
+                editor.replaceRange(JSON.stringify(allComments) + '\n', { line: editor.lastLine() - 2, ch: 0 }, { line: editor.lastLine() - 1, ch: 0 } );
+
+                //this.vueApp.config.globalProperties.comments.unshift(data);
+            
+            }
+
+            // console.log(editor.getCursor("from"));
+            // console.log(editor.getCursor("to"));
+        });
     }
 
 
     // 在视图需要被关闭时调用，它负责释放视图占用的资源
     async onClose() {
+        emitter.off("submit-comment");
+        this.onunload();
     }
     onunload(): void {
+        // console.log("onunload");
         this.vueApp.unmount();
     }
 
