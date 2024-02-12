@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, MarkdownView, Editor, EditorPosition, TFile, Notice, } from 'obsidian';
-import { createApp, App, toRaw } from 'vue';
+import { createApp, App } from 'vue';
 import TeamCommentsTemplate from './TeamCommentsTemplate.vue';
 import { TeamCommentsPlugin } from "./obsidianPlugin";
 import { Comment } from './Comment';
@@ -131,7 +131,7 @@ export class TeamCommentsView extends ItemView {
                         this.vueApp.config.globalProperties.textNumber = 1;
                     else
                         this.vueApp.config.globalProperties.textNumber = max_text_id + 1;
-                    data.text_id = this.vueApp.config.globalProperties.textNumber;
+                    //data.text_id = this.vueApp.config.globalProperties.textNumber;
                     allComments[this.vueApp.config.globalProperties.textNumber.toString()] = <Comment[]>[];
                     
                     // let content = editor.getRange(this.vueApp.config.globalProperties.cursorStart, this.vueApp.config.globalProperties.cursorEnd);

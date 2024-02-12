@@ -2,6 +2,7 @@ import { Notice, Editor, EditorPosition, HoverPopover, MarkdownFileInfo, Markdow
 
 import { DEFAULT_SETTINGS, TeamCommentsSettingTab, TeamCommentsSettings } from "./obsidianSettings";
 import { TeamCommentsView, VIEW_TYPE } from './obsidianView';
+import { NotificationListView, NOTIFICATION_VIEW_TYPE} from './notificationListView'
 
 export class TeamCommentsPlugin extends Plugin {
 	settings: TeamCommentsSettings;
@@ -11,6 +12,11 @@ export class TeamCommentsPlugin extends Plugin {
 		this.registerView(
 			VIEW_TYPE,
 			(leaf) => new TeamCommentsView(leaf, this)
+		);
+
+		this.registerView(
+			NOTIFICATION_VIEW_TYPE,
+			(leaf) => new NotificationListView(leaf, this)
 		);
         
 
@@ -42,6 +48,13 @@ export class TeamCommentsPlugin extends Plugin {
 			name: "Open Comments Panel",
 			editorCallback: (editor: Editor) => {
 				this.activateView();
+			}
+		});
+		this.addCommand({
+			id: "open-notification-list",
+			name: "Open Notification List",
+			callback: () => {
+				this.openNotificationList();
 			}
 		});
 	}
@@ -98,5 +111,23 @@ export class TeamCommentsPlugin extends Plugin {
 		}
 	}
 	  
-	  
+	async openNotificationList() {
+		const leaf = this.app.workspace.getLeaf(false);
+		if (this.settings.name == "")
+		{
+			new Notice('Set your name before open notification list. ');
+			return;
+		}
+		if (leaf)
+		{
+			await leaf.setViewState({
+				type: NOTIFICATION_VIEW_TYPE,
+				active: true,
+			});
+		}
+		else
+		{
+			new Notice('Failed to open notification list. ');
+		}
+	}
 }

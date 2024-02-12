@@ -8,7 +8,7 @@
         <NButton @click="submitComment">Submit</NButton>
       </NSpace>
       <NList hoverable clickable>
-        <NListItem v-for="(comment, index) in comments" :key="comment.text_id + '-' + comment.content">
+        <NListItem v-for="(comment, index) in comments" >
           <NDropdown trigger="click" :options="getMenuItems(index)" >
             <NThing v-bind:title="comment.publisher" v-bind:title-extra="comment.time" style="margin-top: 1px;" content-style="margin-top: 1px;">
               <NTag v-for="mention in comment.mentions" :bordered="false" type="info" size="small" style="margin: 3px">
@@ -30,9 +30,9 @@
   import emitter from './emitter'
   import { Notice } from 'obsidian';
 
-  interface Props{
-    comments: Comment[];
-  }
+  // interface Props{
+  //   comments: Comment[];
+  // }
   
 
   const options = ref<MentionOption[]>([]);
@@ -88,11 +88,16 @@
 
   function submitComment (){
     if (newComment.value.trim() !== '') {
+      if (plugin.settings.name == "")
+      {
+        new Notice('Set your name before submit comment. ');
+        return;
+      }
         const timestamp = new Date().toLocaleString();
         const userMentions = mentionsInput.value.replace(/\s/g, "").split('@').filter(i => i && i.trim());
         const comment = <Comment>{
             //file_path: "./",
-            text_id: global.textNumber, // Replace with actual text id
+            //text_id: global.textNumber, // Replace with actual text id
             publisher: plugin.settings.name,
             time: timestamp,
             content: newComment.value,
@@ -118,6 +123,10 @@
         // console.log(global.comments);
         newComment.value = ''; // Clear the input field
         mentionsInput.value = '@'; // Clear the mention field
+    }
+    else
+    {
+      new Notice('Please write comment content. ');
     }
   };
 </script>
