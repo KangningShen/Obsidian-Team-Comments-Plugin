@@ -37,9 +37,9 @@ export class TeamCommentsView extends ItemView {
         const match = regex.exec(text);
         if (match && match[1]) {
             textNum = parseInt(match[1], 10);
-            console.log('match text');
+            //console.log('match text');
         }
-        console.log(textNum);
+        //console.log(textNum);
         return textNum;
     }
 
@@ -57,7 +57,7 @@ export class TeamCommentsView extends ItemView {
             if (match && match[1]) {
                 //console.log(match[1]);
                 const parsedComments = JSON.parse(match[1])[textNum.toString()];
-                console.log(parsedComments);
+                //console.log(parsedComments);
                 if (parsedComments !== undefined)
                     return parsedComments;
             }
@@ -86,16 +86,16 @@ export class TeamCommentsView extends ItemView {
                 this.vueApp.config.globalProperties.editor = activeView.editor;
                 this.vueApp.config.globalProperties.cursorStart = activeView.editor.getCursor("from");
                 this.vueApp.config.globalProperties.cursorEnd = activeView.editor.getCursor("to");
-                this.vueApp.config.globalProperties.filePath = this.app.workspace.getActiveFile()?.path ?? "";
-                console.log("filepath: " + this.vueApp.config.globalProperties.filePath);
+                //this.vueApp.config.globalProperties.filePath = this.app.workspace.getActiveFile()?.path ?? "";
+                //console.log("filepath: " + this.vueApp.config.globalProperties.filePath);
                 this.vueApp.config.globalProperties.container = mountPoint;
 
                 this.vueApp.config.globalProperties.textNumber = this.parseTextNumber(selectedText);
                 this.vueApp.config.globalProperties.comments = this.getComments(this.vueApp.config.globalProperties.textNumber);
                 this.vueApp.mount(mountPoint);
 
-                console.log(this.vueApp.config.globalProperties.cursorStart);
-                console.log(this.vueApp.config.globalProperties.cursorEnd);
+                // console.log(this.vueApp.config.globalProperties.cursorStart);
+                // console.log(this.vueApp.config.globalProperties.cursorEnd);
                 // console.log(activeView.editor.getCursor("head"));
                 // console.log(activeView.editor.getCursor("anchor"));
 
@@ -103,19 +103,16 @@ export class TeamCommentsView extends ItemView {
         }
 
         emitter.on("submit-comment", async (data) => {
-            // console.log("emitter!!!");
 
             const editor = this.vueApp.config.globalProperties.editor;
-            //const content = editor.getValue();
             const regex = /# Comments\s*\`\`\`json\n([\s\S]*?)\`\`\`/;
             let match = regex.exec(editor.getValue());
-            //console.log(match);
+            
             if (!match || !match[1]) {
                 editor.replaceRange("\n\n# Comments\n\`\`\`json\n"+JSON.stringify({})+"\n\`\`\`\n", { line: 9999, ch: 0 });
             }
 
             match = regex.exec(editor.getValue());
-            // console.log(match);
 
             if (match && match[1])
             {
@@ -134,41 +131,23 @@ export class TeamCommentsView extends ItemView {
                     //data.text_id = this.vueApp.config.globalProperties.textNumber;
                     allComments[this.vueApp.config.globalProperties.textNumber.toString()] = <Comment[]>[];
                     
-                    // let content = editor.getRange(this.vueApp.config.globalProperties.cursorStart, this.vueApp.config.globalProperties.cursorEnd);
-                    // console.log(content);
-                    // content = content.replace(/(?:\r\n|\r|\n)/g, '<br>');
-                    // console.log(content);
-                    // editor.replaceRange(`<mark class="team-comments" id=${this.vueApp.config.globalProperties.textNumber}>` + content + "</mark>", this.vueApp.config.globalProperties.cursorStart, this.vueApp.config.globalProperties.cursorEnd);
-                    
-                    // console.log(this.vueApp.config.globalProperties.cursorEnd);
                     editor.replaceRange("</mark>", this.vueApp.config.globalProperties.cursorEnd);
-                    // console.log(this.vueApp.config.globalProperties.cursorEnd);
-                    // if (this.vueApp.config.globalProperties.cursorStart.line != this.vueApp.config.globalProperties.cursorEnd.line)
-                    //     this.vueApp.config.globalProperties.cursorEnd.ch += 7;
-                    // else
-                    //     this.vueApp.config.globalProperties.cursorEnd.ch += 7;
-                    // console.log(this.vueApp.config.globalProperties.cursorEnd);
+                    
                     editor.replaceRange(`<mark class="team-comments" id=${this.vueApp.config.globalProperties.textNumber}>`, this.vueApp.config.globalProperties.cursorStart);
                 }
-                //console.log(allComments);
-                // if (!allComments.hasOwnProperty(this.vueApp.config.globalProperties.textNumber.toString()))
-                //     allComments[this.vueApp.config.globalProperties.textNumber.toString()] = <Comment[]>[];
+                
                 allComments[this.vueApp.config.globalProperties.textNumber.toString()].unshift(data);
-                //console.log(allComments);
+                
                 editor.replaceRange(JSON.stringify(allComments) + '\n', { line: editor.lastLine() - 2, ch: 0 }, { line: editor.lastLine() - 1, ch: 0 } );
 
                 //this.vueApp.config.globalProperties.comments.unshift(data);
             
             }
-
-            // console.log(editor.getCursor("from"));
-            // console.log(editor.getCursor("to"));
         });
 
 
         
         emitter.on("delete-comment", (data) => {
-            // console.log("emitter!!!");
 
             const editor = this.vueApp.config.globalProperties.editor;
             const regex = /# Comments\s*\`\`\`json\n([\s\S]*?)\`\`\`/;
@@ -186,12 +165,12 @@ export class TeamCommentsView extends ItemView {
                 
                 allComments[this.vueApp.config.globalProperties.textNumber.toString()].splice(data, 1);
 
-                if (allComments[this.vueApp.config.globalProperties.textNumber.toString()].length == 0)
-                {
-                    console.log("empty");
-                    //delete allComments[this.vueApp.config.globalProperties.textNumber.toString()];
+                // if (allComments[this.vueApp.config.globalProperties.textNumber.toString()].length == 0)
+                // {
+                //     console.log("empty");
+                //     // delete allComments[this.vueApp.config.globalProperties.textNumber.toString()];
 
-                }
+                // }
 
                 editor.replaceRange(JSON.stringify(allComments) + '\n', { line: editor.lastLine() - 2, ch: 0 }, { line: editor.lastLine() - 1, ch: 0 } );
 
@@ -199,15 +178,12 @@ export class TeamCommentsView extends ItemView {
         });
     }
 
-
-    // 在视图需要被关闭时调用，它负责释放视图占用的资源
     async onClose() {
         emitter.off("submit-comment");
         emitter.off("delete-comment");
         this.onunload();
     }
     onunload(): void {
-        // console.log("onunload");
         this.vueApp.unmount();
     }
 

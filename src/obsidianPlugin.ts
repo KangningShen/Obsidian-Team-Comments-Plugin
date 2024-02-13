@@ -112,12 +112,23 @@ export class TeamCommentsPlugin extends Plugin {
 	}
 	  
 	async openNotificationList() {
-		const leaf = this.app.workspace.getLeaf(false);
 		if (this.settings.name == "")
 		{
 			new Notice('Set your name before open notification list. ');
 			return;
 		}
+		const existingLeaves = this.app.workspace.getLeavesOfType(NOTIFICATION_VIEW_TYPE);
+		if (existingLeaves.length > 0)
+		{
+			const existingView = existingLeaves[0].view as NotificationListView;
+			//await existingView.refresh();
+			existingView.onClose();
+			existingView.onOpen();
+			this.app.workspace.setActiveLeaf(existingLeaves[0]);
+			return;
+		}
+
+		const leaf = this.app.workspace.getLeaf(false);
 		if (leaf)
 		{
 			await leaf.setViewState({
