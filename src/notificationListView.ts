@@ -99,6 +99,13 @@ export class NotificationListView extends ItemView {
         return notifications;
     };
 
+    refresh()
+    {
+        // console.log("refresh");
+        this.vueApp.config.globalProperties.notifications = this.getNotifications();
+        
+    }
+
     async onOpen(this: NotificationListView) {
         const container = this.containerEl.children[1];
         container.empty();

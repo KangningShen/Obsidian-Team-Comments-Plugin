@@ -55,7 +55,7 @@
       key: 'copyComment', 
       props:{
         onClick: () => {
-          console.log("copy: " + index);
+          // console.log("copy: " + index);
           const comment = comments.value[index];
           const textArea = document.createElement('textarea');
           textArea.value = comment.content;
@@ -71,7 +71,7 @@
       key: 'deleteComment', 
       props:{
         onClick: () => {
-          console.log("delete: " + index);
+          // console.log("delete: " + index);
           if (plugin.settings.name != comments.value[index].publisher)
           {
             new Notice('You can only delete comments made by yourself.');
@@ -113,7 +113,7 @@
             }
         });
         //console.log(plugin.activeFile?.filePath);
-        console.log(comment);
+        //console.log(comment);
         plugin.settings.mentions = options.value;
         plugin.saveSettings();
         // console.log(comments);

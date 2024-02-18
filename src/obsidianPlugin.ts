@@ -124,6 +124,7 @@ export class TeamCommentsPlugin extends Plugin {
 			//await existingView.refresh();
 			existingView.onClose();
 			existingView.onOpen();
+			//existingView.refresh();
 			this.app.workspace.setActiveLeaf(existingLeaves[0]);
 			return;
 		}
