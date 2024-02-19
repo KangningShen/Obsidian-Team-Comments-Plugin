@@ -8,8 +8,6 @@ The Obsidian Team Comments plugin is a community plugin designed to meet the nee
 
 Fill in your name in the plugin settings, the name will be used when submitying comments or displaying notification list. 
 
-![settings-example](images\settings-example.png)
-
 ### Open comments panel
 
 Select text in editor, on which you want to view or make comments. Open command panel and type `Open Comments Panel`.
@@ -17,9 +15,6 @@ Select text in editor, on which you want to view or make comments. Open command 
 All comments based on selected text will be displayed in the comments panel on the right leaf.
 
 In the comments panel, you can view comments, submit comments, copy comment content, or delete your own comments.
-
-Example:
-![comments-panel-example](images\comments-panel-example.png)
 
 ### Open notification list
 
@@ -29,10 +24,8 @@ All comments that mentions you will be displayed in the Notification List.
 
 Click `Open` to open a new tab and select the original text position corresponding to the notification.
 
-Example:
-![notification-list-example](images\notification-list-example.png)
-
 ## Features
+
 - Remember people you have mentioned so that they can be filled in automatically next time
 - Dark and light theme support
 

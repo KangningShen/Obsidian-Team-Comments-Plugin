@@ -1,7 +1,7 @@
 import { Notice, Editor, EditorPosition, HoverPopover, MarkdownFileInfo, MarkdownView, Plugin, TFile } from 'obsidian';
 
 import { DEFAULT_SETTINGS, TeamCommentsSettingTab, TeamCommentsSettings } from "./obsidianSettings";
-import { TeamCommentsView, VIEW_TYPE } from './obsidianView';
+import { TeamCommentsView, VIEW_TYPE } from './teamCommentsView';
 import { NotificationListView, NOTIFICATION_VIEW_TYPE} from './notificationListView'
 
 export class TeamCommentsPlugin extends Plugin {
