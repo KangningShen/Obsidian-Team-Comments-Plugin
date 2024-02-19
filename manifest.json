@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-team-comments-plugin",
 	"name": "Team Comments",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"minAppVersion": "0.15.0",
 	"description": "Provide comments functionality for teams. ",
 	"author": "Kangning Shen",
