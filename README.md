@@ -16,6 +16,8 @@ All comments based on selected text will be displayed in the comments panel on t
 
 In the comments panel, you can view comments, submit comments, copy comment content, or delete your own comments.
 
+You can mention people in comments by separating multiple mentions with spaces, such as "@Jack @Rose". The comment will appear when the person being mentioned opens the notification list.
+
 ### Open notification list
 
 Open command panel and type `Open Notification List`.
