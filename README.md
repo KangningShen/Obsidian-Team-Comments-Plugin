@@ -33,7 +33,7 @@ Click `Open` to open a new tab and select the original text position correspondi
 
 ## Installation
 
-Download latest release file from [Release page](https://github.com/KangningShen/obsidian-team-comments/releases) and put files to your vault/.obsidian/plugins folder. Community plugins should be enabled.
+Download latest release file from [Release page](https://github.com/KangningShen/Obsidian-Team-Comments-Plugin/releases/download/1.0.5/obsidian-team-comments.zip) and put it in your vault/.obsidian/plugins folder and unzip it. Community plugins should be enabled.
 
 ## Notice
 
